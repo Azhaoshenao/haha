@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>封装轮播图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul, ol {
+            list-style: none;
+        }
+
+        span:hover {
+            background-color: rgba(0, 0, 0, .8);
+        }
+
+        .active {
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, .3);
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+</div>
+<div class="box2"></div>
+</body>
+</html>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script>
+
+    //动态添加图片和小圆点
+    var data = [
+        'images/1.jpg',
+        'images/2.jpg',
+        'images/3.jpg',
+        'images/4.jpg',
+        'images/5.jpg',
+        'images/6.jpg',
+        'images/7.jpg'
+    ];
+    var data2 = [
+        'images/1.jpg',
+        'images/2.jpg',
+        'images/3.jpg',
+        'images/4.jpg'
+    ];
+
+
+    $.fn.extend({
+        dis: function (option) {
+            var delay = option.delay || 2000;
+            // 动态创建DOM元素
+            var ulLi = '';
+            var olLi = '';
+            for (var i = 0; i < option.data.length; i++) {
+                ulLi += '<li><img src="' + option.data[i] + '" alt=""></li>';
+                olLi += '<li></li>'
+            }
+            var $ul = '<ul>' + ulLi + '</ul>';
+            var spans = '<span class="prev"><</span>' + '<span class="next">></span>';
+            var $ol = '<ol>' + olLi + '</ol>';
+            $(this).append($ul).append(spans).append($ol);
+
+            var $ulLi = $(this).children('ul').children();
+            var $olLi = $(this).children('ol').children();
+
+            // 动态添加css样式
+            $(this).css({
+                width: 590,
+                height: 470,
+                position: 'relative',
+                margin: '100px auto'
+            });
+
+            $ulLi.css({
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                display: 'none'
+            });
+            $(this).children('span').css({
+                width: 30,
+                height: 60,
+                backgroundColor: 'rgba(0, 0, 0, .5)',
+                position: 'absolute',
+                top: '50%',
+                marginTop: -30,
+                fontSize: 30,
+                fontFamily: '黑体',
+                color: '#fff',
+                textAlign: 'center',
+                lineHeight: '60px',
+                cursor: 'pointer'
+            });
+            $(this).children('span').eq(0).css('left', 0);
+            $(this).children('span').eq(1).css('right', 0);
+            $(this).children('ol').css({
+                position: 'absolute',
+                bottom: 30,
+                left: 50
+            });
+            $olLi.css({
+                width: 10,
+                height: 10,
+                border: '2px solid rgba(255, 255, 255, .5)',
+                float: 'left',
+                borderRadius: '50%',
+                marginRight: 8
+            });
+
+
+            // 图片和小圆点第一个样式
+            $ulLi.eq(0).show();
+            $olLi.eq(0).addClass('active');
+            var index = 0;
+            var timer = null;
+
+            //轮播图公用函数
+            function play() {
+                index = index > option.data.length - 1 ? 0 : index;
+                index = index < 0 ? option.data.length - 1 : index;
+                $ulLi.eq(index).fadeIn().siblings().fadeOut();
+                $olLi.eq(index).addClass('active').siblings().removeClass('active');
+            }
+
+            //鼠标移入小圆点，图片显示
+            $olLi.mouseenter(function () {
+                index = $(this).index();
+                play();
+            });
+            // 按钮点击上一张
+            $('.prev').click(function () {
+                index--;
+                play();
+            });
+            //按钮点击下一张
+            $('.next').click(function () {
+                index++;
+                play();
+            });
+            // 定时器自动播放
+            timer = setInterval(function () {
+                index++;
+                play();
+            }, delay);
+
+            // 鼠标移入大盒子
+            $(this).hover(function () {
+                clearInterval(timer);  //清除定时器
+            }, function () {
+                timer = setInterval(function () {
+                    index++;
+                    play();
+                }, delay);
+            })
+        }
+    });
+
+    //调用dis
+    $('.box').dis({
+        data: data,
+        delay: 3000
+    });
+
+    $('.box2').dis({
+        data: data2,
+        delay: 1000
+    });
+
+
+</script>
